@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a capability or production-readiness improvement.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Expected risk class
+      options: [read, write, destructive, privileged, cost-sensitive, unsure]
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Required Databricks permissions
