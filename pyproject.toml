@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "databricks-mcp-server"
+version = "0.1.0.dev0"
+description = "A safety-first, open-source MCP server for Databricks"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "DatabricksMCP contributors" }]
+keywords = ["databricks", "mcp", "model-context-protocol", "ai", "agents"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = [
+  "databricks-sdk>=0.57.0,<1",
+  "mcp>=1.9.0,<2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Purvanshsingh/DatabricksMCP"
+Documentation = "https://github.com/Purvanshsingh/DatabricksMCP#readme"
+Issues = "https://github.com/Purvanshsingh/DatabricksMCP/issues"
+
+[project.scripts]
+databricks-mcp = "databricks_mcp.__main__:main"
+
+[dependency-groups]
+dev = [
+  "mypy>=1.16,<2",
+  "pre-commit>=4.2,<5",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/databricks_mcp"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["databricks_mcp"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers --cov=databricks_mcp --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "src/databricks_mcp/__main__.py",
+  "src/databricks_mcp/server.py",
+]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
