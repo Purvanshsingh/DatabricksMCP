@@ -1,61 +1,116 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Iterable
+
+import pytest
 
 from databricks_mcp.config import Settings
 from databricks_mcp.server import create_server
 from databricks_mcp.services import DatabricksService
+from tests.conftest import FakeWorkspaceClient
+
+EXPECTED_TOOLS = {
+    # core
+    "health",
+    "server_info",
+    "list_enabled_capabilities",
+    "get_policy_status",
+    "current_identity",
+    # catalog
+    "list_catalogs",
+    "get_catalog",
+    "list_schemas",
+    "get_schema",
+    "list_tables",
+    "list_views",
+    "get_table",
+    "describe_table",
+    "list_columns",
+    "list_functions",
+    "get_function",
+    "list_volumes",
+    # sql
+    "list_sql_warehouses",
+    "get_sql_warehouse",
+}
 
 
-class Model:
-    def as_dict(self) -> dict[str, object]:
-        return {"name": "example"}
+def _server() -> object:
+    return create_server(Settings(), service=DatabricksService(FakeWorkspaceClient()))
 
 
-class CurrentUser:
-    def me(self) -> object:
-        return Model()
-
-
-class ListingAPI:
-    def list(self) -> Iterable[object]:
-        return [Model()]
-
-
-class FakeWorkspaceClient:
-    def __init__(self) -> None:
-        self.current_user = CurrentUser()
-        self.catalogs = ListingAPI()
-        self.warehouses = ListingAPI()
-
-
-def test_tool_schemas_are_registered_and_resolvable() -> None:
-    server = create_server(
-        Settings(),
-        service=DatabricksService(FakeWorkspaceClient()),
-    )
-
+def test_all_tools_register_with_schemas() -> None:
+    server = _server()
     tools = asyncio.run(server.list_tools())
-
-    assert {tool.name for tool in tools} == {
-        "health",
-        "current_identity",
-        "list_catalogs",
-        "list_sql_warehouses",
-    }
+    assert {tool.name for tool in tools} == EXPECTED_TOOLS
     assert all(tool.outputSchema is not None for tool in tools)
+    assert all(tool.description for tool in tools)
 
 
 def test_health_does_not_require_databricks_credentials() -> None:
     server = create_server(Settings())
-
-    content, structured = asyncio.run(server.call_tool("health", {}))
-
-    assert content
+    _content, structured = asyncio.run(server.call_tool("health", {}))
     assert structured == {
         "status": "ok",
         "version": "0.1.0.dev0",
         "access_mode": "read-only",
         "transport": "stdio",
     }
+
+
+def test_current_identity_flows_through_service() -> None:
+    server = _server()
+    _content, structured = asyncio.run(server.call_tool("current_identity", {}))
+    assert structured == {"userName": "user@example.com"}
+
+
+def test_describe_table_returns_concise_summary() -> None:
+    server = _server()
+    _content, structured = asyncio.run(
+        server.call_tool("describe_table", {"full_name": "main.default.events"})
+    )
+    assert structured["table_type"] == "MANAGED"
+    assert [column["name"] for column in structured["columns"]] == ["id", "ts"]
+    assert structured["columns"][0]["type"] == "bigint"
+
+
+def test_server_info_reports_packs_and_tool_count() -> None:
+    server = _server()
+    _content, structured = asyncio.run(server.call_tool("server_info", {}))
+    assert structured["packs"] == ["catalog", "core", "sql"]
+    assert structured["tool_count"] == len(EXPECTED_TOOLS)
+
+
+def test_list_enabled_capabilities_reports_read_risk() -> None:
+    server = _server()
+    _content, structured = asyncio.run(server.call_tool("list_enabled_capabilities", {}))
+    capabilities = structured["result"]
+    assert {cap["risk"] for cap in capabilities} == {"read"}
+    assert len(capabilities) == len(EXPECTED_TOOLS)
+
+
+# Every catalog/sql tool exercised end-to-end through the server against the fake
+# workspace, so each tool body and its argument wiring is covered.
+_TOOL_CALLS = [
+    ("list_catalogs", {}),
+    ("get_catalog", {"name": "main"}),
+    ("list_schemas", {"catalog_name": "main"}),
+    ("get_schema", {"full_name": "main.default"}),
+    ("list_tables", {"catalog_name": "main", "schema_name": "default"}),
+    ("list_views", {"catalog_name": "main", "schema_name": "default"}),
+    ("get_table", {"full_name": "main.default.events"}),
+    ("list_columns", {"full_name": "main.default.events"}),
+    ("list_functions", {"catalog_name": "main", "schema_name": "default"}),
+    ("get_function", {"name": "main.default.to_upper"}),
+    ("list_volumes", {"catalog_name": "main", "schema_name": "default"}),
+    ("list_sql_warehouses", {}),
+    ("get_sql_warehouse", {"warehouse_id": "w1"}),
+]
+
+
+@pytest.mark.parametrize(("tool", "args"), _TOOL_CALLS)
+def test_read_tool_invocation_succeeds(tool: str, args: dict[str, str]) -> None:
+    server = _server()
+    content, structured = asyncio.run(server.call_tool(tool, args))
+    assert content
+    assert structured is not None

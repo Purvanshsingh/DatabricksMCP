@@ -20,8 +20,11 @@ are trademarks of Databricks, Inc.
 
 - MCP over local `stdio` and remote Streamable HTTP
 - Databricks unified authentication through the official Python SDK
-- Health and authenticated-identity diagnostics
-- Read-only Unity Catalog and SQL warehouse discovery
+- Health, identity, and capability-introspection diagnostics
+- Read-only Unity Catalog exploration: catalogs, schemas, tables, views,
+  columns, functions, and volumes
+- Read-only Databricks SQL warehouse discovery
+- A capability-pack architecture with a policy-enforcing tool registry
 - A deny-by-default policy foundation for future mutation tools
 - Typed configuration, structured errors, tests, CI, and a non-root container
 

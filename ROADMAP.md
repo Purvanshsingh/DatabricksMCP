@@ -11,10 +11,14 @@ until the project has a stable maintainer cadence.
 - [x] Health, current identity, catalog, and warehouse tools
 - [x] Deny-by-default policy foundation
 - [x] Unit tests, CI, container, and security documentation
+- [x] Capability-pack architecture with a policy-enforcing tool registry
+- [x] Capability introspection (`server_info`, `list_enabled_capabilities`, `get_policy_status`)
+- [x] Unity Catalog metadata exploration (schemas, tables, views, columns, functions, volumes)
+- [x] Mock-SDK contract tests for every read tool
 - [ ] Read-only SQL with AST validation and bounded results
-- [ ] Catalog/schema/table metadata exploration
 - [ ] Read-only jobs, pipeline, and cluster inspection
-- [ ] Mock-server contract tests and opt-in workspace integration tests
+- [ ] Consistent cursor pagination for large listings
+- [ ] Opt-in live-workspace integration tests
 
 ## Phase 2 — Controlled operations
 
