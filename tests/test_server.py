@@ -32,6 +32,10 @@ EXPECTED_TOOLS = {
     # sql
     "list_sql_warehouses",
     "get_sql_warehouse",
+    "execute_read_only_sql",
+    "explain_sql",
+    "get_sql_statement",
+    "cancel_sql_statement",
 }
 
 
@@ -105,6 +109,10 @@ _TOOL_CALLS = [
     ("list_volumes", {"catalog_name": "main", "schema_name": "default"}),
     ("list_sql_warehouses", {}),
     ("get_sql_warehouse", {"warehouse_id": "w1"}),
+    ("execute_read_only_sql", {"statement": "SELECT 1", "warehouse_id": "w1"}),
+    ("explain_sql", {"statement": "SELECT 1", "warehouse_id": "w1"}),
+    ("get_sql_statement", {"statement_id": "stmt-1"}),
+    ("cancel_sql_statement", {"statement_id": "stmt-1"}),
 ]
 
 

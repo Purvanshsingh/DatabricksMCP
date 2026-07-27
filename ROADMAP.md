@@ -15,7 +15,7 @@ until the project has a stable maintainer cadence.
 - [x] Capability introspection (`server_info`, `list_enabled_capabilities`, `get_policy_status`)
 - [x] Unity Catalog metadata exploration (schemas, tables, views, columns, functions, volumes)
 - [x] Mock-SDK contract tests for every read tool
-- [ ] Read-only SQL with AST validation and bounded results
+- [x] Read-only SQL with sqlglot AST validation, bounded results, and cancellation
 - [ ] Read-only jobs, pipeline, and cluster inspection
 - [ ] Consistent cursor pagination for large listings
 - [ ] Opt-in live-workspace integration tests

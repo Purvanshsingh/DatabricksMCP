@@ -12,6 +12,11 @@ from collections.abc import Callable, Iterable
 from typing import Protocol
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.sql import (
+    Disposition,
+    ExecuteStatementRequestOnWaitTimeout,
+    Format,
+)
 
 from databricks_mcp.serialization import JsonValue, to_json_value
 
@@ -53,6 +58,27 @@ class WarehouseAPI(Protocol):
     def get(self, id: str) -> object: ...
 
 
+class StatementExecutionAPI(Protocol):
+    def execute_statement(
+        self,
+        statement: str,
+        warehouse_id: str,
+        *,
+        byte_limit: int | None = ...,
+        catalog: str | None = ...,
+        disposition: Disposition | None = ...,
+        format: Format | None = ...,
+        on_wait_timeout: ExecuteStatementRequestOnWaitTimeout | None = ...,
+        row_limit: int | None = ...,
+        schema: str | None = ...,
+        wait_timeout: str | None = ...,
+    ) -> object: ...
+
+    def get_statement(self, statement_id: str) -> object: ...
+
+    def cancel_execution(self, statement_id: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -74,6 +100,9 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def warehouses(self) -> WarehouseAPI: ...
+
+    @property
+    def statement_execution(self) -> StatementExecutionAPI: ...
 
 
 class DatabricksService:
@@ -150,6 +179,38 @@ class DatabricksService:
 
     def get_warehouse(self, warehouse_id: str) -> JsonObject:
         return self._object(self._client.warehouses.get(warehouse_id))
+
+    def execute_read_only_sql(
+        self,
+        *,
+        statement: str,
+        warehouse_id: str,
+        row_limit: int,
+        byte_limit: int,
+        wait_seconds: int,
+        catalog: str | None = None,
+        schema: str | None = None,
+    ) -> JsonObject:
+        response = self._client.statement_execution.execute_statement(
+            statement,
+            warehouse_id,
+            row_limit=row_limit,
+            byte_limit=byte_limit,
+            wait_timeout=f"{wait_seconds}s",
+            on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CONTINUE,
+            disposition=Disposition.INLINE,
+            format=Format.JSON_ARRAY,
+            catalog=catalog,
+            schema=schema,
+        )
+        return self._object(response)
+
+    def get_sql_statement(self, statement_id: str) -> JsonObject:
+        return self._object(self._client.statement_execution.get_statement(statement_id))
+
+    def cancel_sql_statement(self, statement_id: str) -> JsonObject:
+        self._client.statement_execution.cancel_execution(statement_id)
+        return {"statement_id": statement_id, "cancelled": True}
 
     # -- Serialization helpers -------------------------------------------
 

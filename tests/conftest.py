@@ -86,6 +86,27 @@ class WarehouseAPI:
         return Model(id=id, name="starter", state="RUNNING")
 
 
+class StatementExecutionAPI:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+        self.cancelled: list[str] = []
+
+    def execute_statement(self, statement: str, warehouse_id: str, **kwargs: object) -> Model:
+        self.calls.append({"statement": statement, "warehouse_id": warehouse_id, **kwargs})
+        return Model(
+            statement_id="stmt-1",
+            status={"state": "SUCCEEDED"},
+            result={"data_array": [["1"]]},
+        )
+
+    def get_statement(self, statement_id: str) -> Model:
+        return Model(statement_id=statement_id, status={"state": "SUCCEEDED"})
+
+    def cancel_execution(self, statement_id: str) -> None:
+        self.cancelled.append(statement_id)
+        return None
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -97,3 +118,4 @@ class FakeWorkspaceClient:
         self.functions = FunctionAPI()
         self.volumes = VolumeAPI()
         self.warehouses = WarehouseAPI()
+        self.statement_execution = StatementExecutionAPI()
