@@ -87,6 +87,14 @@ class JobsAPI(Protocol):
     def get_run_output(self, run_id: int) -> object: ...
 
 
+class PipelinesAPI(Protocol):
+    def list_pipelines(self) -> Iterable[object]: ...
+    def get(self, pipeline_id: str) -> object: ...
+    def list_pipeline_events(self, pipeline_id: str) -> object: ...
+    def list_updates(self, pipeline_id: str) -> object: ...
+    def get_update(self, pipeline_id: str, update_id: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -114,6 +122,9 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def jobs(self) -> JobsAPI: ...
+
+    @property
+    def pipelines(self) -> PipelinesAPI: ...
 
 
 class DatabricksService:
@@ -239,6 +250,23 @@ class DatabricksService:
 
     def get_job_run_output(self, run_id: int) -> JsonObject:
         return self._object(self._client.jobs.get_run_output(run_id))
+
+    # -- Lakeflow pipelines ----------------------------------------------
+
+    def list_pipelines(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.pipelines.list_pipelines(), limit=limit)
+
+    def get_pipeline(self, pipeline_id: str) -> JsonObject:
+        return self._object(self._client.pipelines.get(pipeline_id))
+
+    def list_pipeline_events(self, pipeline_id: str) -> JsonObject:
+        return self._object(self._client.pipelines.list_pipeline_events(pipeline_id))
+
+    def list_pipeline_updates(self, pipeline_id: str) -> JsonObject:
+        return self._object(self._client.pipelines.list_updates(pipeline_id))
+
+    def get_pipeline_update(self, pipeline_id: str, update_id: str) -> JsonObject:
+        return self._object(self._client.pipelines.get_update(pipeline_id, update_id))
 
     # -- Serialization helpers -------------------------------------------
 
