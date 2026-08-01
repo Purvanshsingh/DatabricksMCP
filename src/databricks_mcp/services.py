@@ -95,6 +95,19 @@ class PipelinesAPI(Protocol):
     def get_update(self, pipeline_id: str, update_id: str) -> object: ...
 
 
+class ClustersAPI(Protocol):
+    def list(self) -> Iterable[object]: ...
+    def get(self, cluster_id: str) -> object: ...
+    def events(self, cluster_id: str) -> Iterable[object]: ...
+    def list_node_types(self) -> object: ...
+    def spark_versions(self) -> object: ...
+
+
+class ClusterPoliciesAPI(Protocol):
+    def list(self) -> Iterable[object]: ...
+    def get(self, policy_id: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -125,6 +138,12 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def pipelines(self) -> PipelinesAPI: ...
+
+    @property
+    def clusters(self) -> ClustersAPI: ...
+
+    @property
+    def cluster_policies(self) -> ClusterPoliciesAPI: ...
 
 
 class DatabricksService:
@@ -267,6 +286,29 @@ class DatabricksService:
 
     def get_pipeline_update(self, pipeline_id: str, update_id: str) -> JsonObject:
         return self._object(self._client.pipelines.get_update(pipeline_id, update_id))
+
+    # -- Compute ----------------------------------------------------------
+
+    def list_clusters(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.clusters.list(), limit=limit)
+
+    def get_cluster(self, cluster_id: str) -> JsonObject:
+        return self._object(self._client.clusters.get(cluster_id))
+
+    def list_cluster_events(self, *, cluster_id: str, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.clusters.events(cluster_id), limit=limit)
+
+    def list_node_types(self) -> JsonObject:
+        return self._object(self._client.clusters.list_node_types())
+
+    def list_spark_versions(self) -> JsonObject:
+        return self._object(self._client.clusters.spark_versions())
+
+    def list_cluster_policies(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.cluster_policies.list(), limit=limit)
+
+    def get_cluster_policy(self, policy_id: str) -> JsonObject:
+        return self._object(self._client.cluster_policies.get(policy_id))
 
     # -- Serialization helpers -------------------------------------------
 

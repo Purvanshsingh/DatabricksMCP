@@ -147,6 +147,32 @@ class PipelinesAPI:
         return Model(update={"update_id": update_id, "state": "COMPLETED"})
 
 
+class ClustersAPI:
+    def list(self) -> Iterator[Model]:
+        yield Model(cluster_id="c1", cluster_name="analytics", state="RUNNING")
+        yield Model(cluster_id="c2", cluster_name="jobs", state="TERMINATED")
+
+    def get(self, cluster_id: str) -> Model:
+        return Model(cluster_id=cluster_id, cluster_name="analytics", state="RUNNING")
+
+    def events(self, cluster_id: str) -> Iterator[Model]:
+        yield Model(type="RUNNING", cluster_id=cluster_id, timestamp=1)
+
+    def list_node_types(self) -> Model:
+        return Model(node_types=[{"node_type_id": "m5.large"}])
+
+    def spark_versions(self) -> Model:
+        return Model(versions=[{"key": "14.3.x-scala2.12", "name": "14.3 LTS"}])
+
+
+class ClusterPoliciesAPI:
+    def list(self) -> Iterator[Model]:
+        yield Model(policy_id="pol1", name="default")
+
+    def get(self, policy_id: str) -> Model:
+        return Model(policy_id=policy_id, name="default")
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -161,3 +187,5 @@ class FakeWorkspaceClient:
         self.statement_execution = StatementExecutionAPI()
         self.jobs = JobsAPI()
         self.pipelines = PipelinesAPI()
+        self.clusters = ClustersAPI()
+        self.cluster_policies = ClusterPoliciesAPI()
