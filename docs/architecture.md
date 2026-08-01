@@ -35,8 +35,15 @@ Databricks workspace/account APIs
 - `policy.py`: capability classification and authorization decisions.
 - `serialization.py`: bounded conversion of SDK models to JSON values.
 - `services.py`: Databricks SDK adapter layer.
-- `server.py`: MCP tool registration only.
+- `registry.py`: `ToolSpec` metadata and the `Registrar`, which enforces the
+  policy engine and records tool metadata on every registration.
+- `packs/`: capability packs, one module per Databricks domain
+  (`core`, `catalog`, `sql`, ...). Each exposes a `register(registrar)` function.
+- `server.py`: builds the server, wires the registrar, and registers packs.
 - `__main__.py`: process startup and transport selection.
 
-Future capability packs will live under `tools/` and `services/` namespaces once
-the initial contracts have been validated with multiple MCP clients.
+Each pack is registered through the `Registrar`, so every tool is guarded by the
+policy engine and carries a declared risk class and operational metadata. New
+domains are added by dropping a module in `packs/` and listing it in
+`packs/__init__.py`; service methods for that domain live in `services.py` until
+the domain grows enough modules to warrant its own `services/` subpackage.

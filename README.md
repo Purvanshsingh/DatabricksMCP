@@ -20,8 +20,13 @@ are trademarks of Databricks, Inc.
 
 - MCP over local `stdio` and remote Streamable HTTP
 - Databricks unified authentication through the official Python SDK
-- Health and authenticated-identity diagnostics
-- Read-only Unity Catalog and SQL warehouse discovery
+- Health, identity, and capability-introspection diagnostics
+- Read-only Unity Catalog exploration: catalogs, schemas, tables, views,
+  columns, functions, and volumes
+- Read-only Databricks SQL warehouse discovery
+- AST-validated read-only SQL execution (sqlglot) with row, byte, and time
+  limits, plus statement polling and cancellation
+- A capability-pack architecture with a policy-enforcing tool registry
 - A deny-by-default policy foundation for future mutation tools
 - Typed configuration, structured errors, tests, CI, and a non-root container
 
@@ -114,6 +119,10 @@ TLS until native remote authorization lands in Phase 3.
 | `DATABRICKS_MCP_PORT` | `8000` | HTTP bind port |
 | `DATABRICKS_MCP_LOG_LEVEL` | `INFO` | Python log level |
 | `DATABRICKS_MCP_ACCESS_MODE` | `read-only` | Policy mode; only `read-only` exists in Phase 1 |
+| `DATABRICKS_MCP_SQL_MAX_ROWS` | `1000` | Maximum rows returned by read-only SQL (ceiling) |
+| `DATABRICKS_MCP_SQL_BYTE_LIMIT` | `10000000` | Maximum result bytes for read-only SQL |
+| `DATABRICKS_MCP_SQL_WAIT_SECONDS` | `30` | Synchronous wait before a statement returns a poll id (5–50) |
+| `DATABRICKS_MCP_SQL_WAREHOUSES` | _unset_ | Optional comma-separated warehouse-id allowlist for SQL |
 
 Standard `DATABRICKS_*` authentication variables are consumed by the official
 Databricks SDK.

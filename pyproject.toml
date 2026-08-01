@@ -23,6 +23,7 @@ classifiers = [
 dependencies = [
   "databricks-sdk>=0.57.0,<1",
   "mcp>=1.9.0,<2",
+  "sqlglot>=25,<28",
 ]
 
 [project.urls]
@@ -60,9 +61,14 @@ python_version = "3.11"
 strict = true
 packages = ["databricks_mcp"]
 
+[[tool.mypy.overrides]]
+module = ["sqlglot.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 addopts = "--strict-config --strict-markers --cov=databricks_mcp --cov-report=term-missing"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.coverage.run]
 branch = true

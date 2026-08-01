@@ -21,6 +21,11 @@ def _integer(name: str, default: int, *, minimum: int, maximum: int) -> int:
     return value
 
 
+def _string_tuple(name: str) -> tuple[str, ...]:
+    raw = os.getenv(name, "")
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     """Runtime settings loaded from environment variables."""
@@ -32,6 +37,10 @@ class Settings:
     access_mode: AccessMode = "read-only"
     default_page_size: int = 100
     maximum_page_size: int = 200
+    sql_max_rows: int = 1000
+    sql_byte_limit: int = 10_000_000
+    sql_wait_seconds: int = 30
+    sql_warehouse_allowlist: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -58,4 +67,13 @@ class Settings:
                 "DATABRICKS_MCP_DEFAULT_PAGE_SIZE", 100, minimum=1, maximum=200
             ),
             maximum_page_size=200,
+            sql_max_rows=_integer("DATABRICKS_MCP_SQL_MAX_ROWS", 1000, minimum=1, maximum=100_000),
+            sql_byte_limit=_integer(
+                "DATABRICKS_MCP_SQL_BYTE_LIMIT",
+                10_000_000,
+                minimum=1_000,
+                maximum=100_000_000,
+            ),
+            sql_wait_seconds=_integer("DATABRICKS_MCP_SQL_WAIT_SECONDS", 30, minimum=5, maximum=50),
+            sql_warehouse_allowlist=_string_tuple("DATABRICKS_MCP_SQL_WAREHOUSES"),
         )
