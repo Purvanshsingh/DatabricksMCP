@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 from databricks_mcp.packs import (
+    ai,
     catalog,
     compute,
     core,
@@ -38,6 +39,7 @@ DEFAULT_PACKS: tuple[Pack, ...] = (
     governance,
     workspace,
     mlflow,
+    ai,
 )
 
 
