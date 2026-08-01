@@ -107,6 +107,28 @@ class StatementExecutionAPI:
         return None
 
 
+class JobsAPI:
+    def __init__(self) -> None:
+        self.run_calls: list[int | None] = []
+
+    def list(self) -> Iterator[Model]:
+        yield Model(job_id=1, settings={"name": "etl"})
+        yield Model(job_id=2, settings={"name": "ml"})
+
+    def get(self, job_id: int) -> Model:
+        return Model(job_id=job_id, settings={"name": "etl"})
+
+    def list_runs(self, *, job_id: int | None = None) -> Iterator[Model]:
+        self.run_calls.append(job_id)
+        yield Model(run_id=10, job_id=job_id or 1, state={"life_cycle_state": "TERMINATED"})
+
+    def get_run(self, run_id: int) -> Model:
+        return Model(run_id=run_id, state={"life_cycle_state": "TERMINATED"})
+
+    def get_run_output(self, run_id: int) -> Model:
+        return Model(run_id=run_id, logs="done")
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -119,3 +141,4 @@ class FakeWorkspaceClient:
         self.volumes = VolumeAPI()
         self.warehouses = WarehouseAPI()
         self.statement_execution = StatementExecutionAPI()
+        self.jobs = JobsAPI()

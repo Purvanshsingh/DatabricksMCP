@@ -79,6 +79,14 @@ class StatementExecutionAPI(Protocol):
     def cancel_execution(self, statement_id: str) -> object: ...
 
 
+class JobsAPI(Protocol):
+    def list(self) -> Iterable[object]: ...
+    def get(self, job_id: int) -> object: ...
+    def list_runs(self, *, job_id: int | None = ...) -> Iterable[object]: ...
+    def get_run(self, run_id: int) -> object: ...
+    def get_run_output(self, run_id: int) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -103,6 +111,9 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def statement_execution(self) -> StatementExecutionAPI: ...
+
+    @property
+    def jobs(self) -> JobsAPI: ...
 
 
 class DatabricksService:
@@ -211,6 +222,23 @@ class DatabricksService:
     def cancel_sql_statement(self, statement_id: str) -> JsonObject:
         self._client.statement_execution.cancel_execution(statement_id)
         return {"statement_id": statement_id, "cancelled": True}
+
+    # -- Jobs -------------------------------------------------------------
+
+    def list_jobs(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.jobs.list(), limit=limit)
+
+    def get_job(self, job_id: int) -> JsonObject:
+        return self._object(self._client.jobs.get(job_id))
+
+    def list_job_runs(self, *, job_id: int | None, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.jobs.list_runs(job_id=job_id), limit=limit)
+
+    def get_job_run(self, run_id: int) -> JsonObject:
+        return self._object(self._client.jobs.get_run(run_id))
+
+    def get_job_run_output(self, run_id: int) -> JsonObject:
+        return self._object(self._client.jobs.get_run_output(run_id))
 
     # -- Serialization helpers -------------------------------------------
 
