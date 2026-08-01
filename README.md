@@ -16,21 +16,42 @@ DatabricksMCP is an independent community project. It is not affiliated with,
 endorsed by, or sponsored by Databricks, Inc. Databricks and the Databricks logo
 are trademarks of Databricks, Inc.
 
-## Phase 1 capabilities
+## Capabilities
 
-- MCP over local `stdio` and remote Streamable HTTP
-- Databricks unified authentication through the official Python SDK
-- Health, identity, and capability-introspection diagnostics
-- Read-only Unity Catalog exploration: catalogs, schemas, tables, views,
-  columns, functions, and volumes
-- Read-only Databricks SQL warehouse discovery
-- AST-validated read-only SQL execution (sqlglot) with row, byte, and time
-  limits, plus statement polling and cancellation
-- A capability-pack architecture with a policy-enforcing tool registry
-- A deny-by-default policy foundation for future mutation tools
-- Typed configuration, structured errors, tests, CI, and a non-root container
+DatabricksMCP is organized into independently enabled **capability packs**. Read
+packs are always on; write tools are off by default (see
+[Mutations](#controlled-mutations)). The read surface (63 tools) spans:
 
-See [ROADMAP.md](ROADMAP.md) for the planned production-grade capability set.
+- **Transport & auth** — MCP over local `stdio` and remote Streamable HTTP;
+  Databricks unified authentication through the official Python SDK
+- **Core / diagnostics** — health, identity, `server_info`,
+  `list_enabled_capabilities`, `get_policy_status`
+- **Unity Catalog** — catalogs, schemas, tables, views, columns, functions, volumes
+- **Databricks SQL** — warehouse discovery, query history, and AST-validated
+  (sqlglot) read-only SQL with row/byte/time limits, polling, and cancellation
+- **Jobs** — jobs, runs, and run output
+- **Lakeflow pipelines** — pipelines, updates, and events
+- **Compute** — clusters, cluster events, policies, node types, Spark versions
+- **Governance** — Unity Catalog grants (direct and effective) and object permissions
+- **Workspace** — browse and export notebooks and workspace objects
+- **MLflow** — experiments, runs, registered models, and versions
+- **AI** — Model Serving endpoints, Vector Search endpoints and indexes, Genie spaces
+- **Cost & audit** — recent `system.billing.usage` and `system.access.audit` reads
+
+Every tool carries a risk classification and is guarded by a deny-by-default
+policy engine. See [ROADMAP.md](ROADMAP.md) for the full production-grade plan.
+
+### Controlled mutations
+
+State-changing tools are **disabled unless you opt in**. Set
+`DATABRICKS_MCP_ACCESS_MODE=controlled-write` and list the exact tools you want
+in `DATABRICKS_MCP_WRITE_TOOLS_ALLOW`. Even then:
+
+- destructive/privileged actions require a short-lived, single-use **approval
+  token** — call the tool with `dry_run=true` to get a plan and a token, then
+  call again with `approval_token`;
+- every attempt is written to a structured **audit log** (tool, risk, decision,
+  outcome — never argument values).
 
 ## Quick start
 
@@ -118,7 +139,9 @@ TLS until native remote authorization lands in Phase 3.
 | `DATABRICKS_MCP_HOST` | `127.0.0.1` | HTTP bind address |
 | `DATABRICKS_MCP_PORT` | `8000` | HTTP bind port |
 | `DATABRICKS_MCP_LOG_LEVEL` | `INFO` | Python log level |
-| `DATABRICKS_MCP_ACCESS_MODE` | `read-only` | Policy mode; only `read-only` exists in Phase 1 |
+| `DATABRICKS_MCP_ACCESS_MODE` | `read-only` | `read-only` or `controlled-write` (enables gated write tools) |
+| `DATABRICKS_MCP_WRITE_TOOLS_ALLOW` | _unset_ | Comma-separated write tool names to enable (controlled-write only) |
+| `DATABRICKS_MCP_APPROVAL_TTL_SECONDS` | `300` | Lifetime of approval tokens for destructive actions (30–3600) |
 | `DATABRICKS_MCP_SQL_MAX_ROWS` | `1000` | Maximum rows returned by read-only SQL (ceiling) |
 | `DATABRICKS_MCP_SQL_BYTE_LIMIT` | `10000000` | Maximum result bytes for read-only SQL |
 | `DATABRICKS_MCP_SQL_WAIT_SECONDS` | `30` | Synchronous wait before a statement returns a poll id (5–50) |
