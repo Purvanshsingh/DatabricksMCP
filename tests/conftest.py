@@ -6,13 +6,19 @@ from collections.abc import Iterator
 
 
 class Model:
-    """A minimal SDK-like model exposing ``as_dict`` for serialization."""
+    """A minimal SDK-like model exposing ``as_dict`` and attribute access."""
 
     def __init__(self, **fields: object) -> None:
         self._fields = fields
 
     def as_dict(self) -> dict[str, object]:
         return dict(self._fields)
+
+    def __getattr__(self, name: str) -> object:
+        try:
+            return self.__dict__["_fields"][name]
+        except KeyError:
+            raise AttributeError(name) from None
 
 
 class CurrentUser:
@@ -127,6 +133,17 @@ class JobsAPI:
 
     def get_run_output(self, run_id: int) -> Model:
         return Model(run_id=run_id, logs="done")
+
+    def run_now(self, job_id: int, *, idempotency_token: str | None = None) -> Model:
+        return Model(run_id=555, job_id=job_id, idempotency_token=idempotency_token)
+
+    def cancel_run(self, run_id: int) -> None:
+        self.run_calls.append(-run_id)
+        return None
+
+    def delete(self, job_id: int) -> None:
+        self.run_calls.append(-1000 - job_id)
+        return None
 
 
 class PipelinesAPI:

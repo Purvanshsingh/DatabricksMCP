@@ -86,6 +86,9 @@ class JobsAPI(Protocol):
     def list_runs(self, *, job_id: int | None = ...) -> Iterable[object]: ...
     def get_run(self, run_id: int) -> object: ...
     def get_run_output(self, run_id: int) -> object: ...
+    def run_now(self, job_id: int, *, idempotency_token: str | None = ...) -> object: ...
+    def cancel_run(self, run_id: int) -> object: ...
+    def delete(self, job_id: int) -> object: ...
 
 
 class PipelinesAPI(Protocol):
@@ -354,6 +357,20 @@ class DatabricksService:
 
     def get_job_run_output(self, run_id: int) -> JsonObject:
         return self._object(self._client.jobs.get_run_output(run_id))
+
+    # -- Jobs (mutations) -------------------------------------------------
+
+    def run_job(self, *, job_id: int, idempotency_token: str | None = None) -> JsonObject:
+        run = self._client.jobs.run_now(job_id, idempotency_token=idempotency_token)
+        return {"job_id": job_id, "run_id": getattr(run, "run_id", None), "status": "submitted"}
+
+    def cancel_job_run(self, run_id: int) -> JsonObject:
+        self._client.jobs.cancel_run(run_id)
+        return {"run_id": run_id, "status": "cancel_requested"}
+
+    def delete_job(self, job_id: int) -> JsonObject:
+        self._client.jobs.delete(job_id)
+        return {"job_id": job_id, "deleted": True}
 
     # -- Lakeflow pipelines ----------------------------------------------
 

@@ -12,6 +12,7 @@ from databricks_mcp.packs import (
     cost,
     governance,
     jobs,
+    jobs_write,
     mlflow,
     pipelines,
     sql,
@@ -30,7 +31,10 @@ class Pack(Protocol):
     def register(self, registrar: Registrar) -> None: ...
 
 
-DEFAULT_PACKS: tuple[Pack, ...] = (
+# Read-only packs are always registered. Write packs are registered only when
+# the server runs in controlled-write mode; individual write tools are then
+# further gated by the allowlist and approval policy.
+READ_PACKS: tuple[Pack, ...] = (
     core,
     catalog,
     sql,
@@ -44,8 +48,13 @@ DEFAULT_PACKS: tuple[Pack, ...] = (
     cost,
 )
 
+WRITE_PACKS: tuple[Pack, ...] = (jobs_write,)
+
 
 def register_all(registrar: Registrar) -> None:
-    """Register every default capability pack onto the server."""
-    for pack in DEFAULT_PACKS:
+    """Register read packs always, and write packs only in controlled-write mode."""
+    for pack in READ_PACKS:
         pack.register(registrar)
+    if registrar.settings.access_mode == "controlled-write":
+        for pack in WRITE_PACKS:
+            pack.register(registrar)
