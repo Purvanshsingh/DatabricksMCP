@@ -129,6 +129,24 @@ class JobsAPI:
         return Model(run_id=run_id, logs="done")
 
 
+class PipelinesAPI:
+    def list_pipelines(self) -> Iterator[Model]:
+        yield Model(pipeline_id="p1", name="bronze")
+        yield Model(pipeline_id="p2", name="silver")
+
+    def get(self, pipeline_id: str) -> Model:
+        return Model(pipeline_id=pipeline_id, name="bronze", state="RUNNING")
+
+    def list_pipeline_events(self, pipeline_id: str) -> Model:
+        return Model(events=[{"id": "e1", "level": "INFO"}], next_page_token=None)
+
+    def list_updates(self, pipeline_id: str) -> Model:
+        return Model(updates=[{"update_id": "u1", "state": "COMPLETED"}])
+
+    def get_update(self, pipeline_id: str, update_id: str) -> Model:
+        return Model(update={"update_id": update_id, "state": "COMPLETED"})
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -142,3 +160,4 @@ class FakeWorkspaceClient:
         self.warehouses = WarehouseAPI()
         self.statement_execution = StatementExecutionAPI()
         self.jobs = JobsAPI()
+        self.pipelines = PipelinesAPI()
