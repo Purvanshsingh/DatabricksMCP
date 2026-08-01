@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
 
     from databricks_mcp.config import Settings
+    from databricks_mcp.mutations import MutationController
     from databricks_mcp.services import DatabricksService
 
 P = ParamSpec("P")
@@ -62,12 +63,21 @@ class Registrar:
         settings: Settings,
         policy: PolicyEngine,
         service_provider: Callable[[], DatabricksService],
+        mutations: MutationController | None = None,
     ) -> None:
         self._mcp = mcp
         self.settings = settings
         self.policy = policy
         self._service_provider = service_provider
+        self._mutations = mutations
         self._specs: dict[str, ToolSpec] = {}
+
+    @property
+    def mutations(self) -> MutationController:
+        """The mutation controller for write tools; raises if not configured."""
+        if self._mutations is None:
+            raise RuntimeError("mutation controller is not configured on this server")
+        return self._mutations
 
     @property
     def specs(self) -> dict[str, ToolSpec]:

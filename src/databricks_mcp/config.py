@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Literal, cast
 
 Transport = Literal["stdio", "streamable-http"]
-AccessMode = Literal["read-only"]
+AccessMode = Literal["read-only", "controlled-write"]
 
 
 def _integer(name: str, default: int, *, minimum: int, maximum: int) -> int:
@@ -41,6 +41,10 @@ class Settings:
     sql_byte_limit: int = 10_000_000
     sql_wait_seconds: int = 30
     sql_warehouse_allowlist: tuple[str, ...] = ()
+    # Mutation safety: writes are disabled unless access_mode is controlled-write
+    # AND the specific tool name appears in write_tools_allow.
+    write_tools_allow: tuple[str, ...] = ()
+    approval_ttl_seconds: int = 300
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -50,8 +54,8 @@ class Settings:
             raise ValueError("DATABRICKS_MCP_TRANSPORT must be 'stdio' or 'streamable-http'")
 
         access_mode = os.getenv("DATABRICKS_MCP_ACCESS_MODE", "read-only").lower()
-        if access_mode != "read-only":
-            raise ValueError("Phase 1 supports only DATABRICKS_MCP_ACCESS_MODE=read-only")
+        if access_mode not in {"read-only", "controlled-write"}:
+            raise ValueError("DATABRICKS_MCP_ACCESS_MODE must be 'read-only' or 'controlled-write'")
 
         log_level = os.getenv("DATABRICKS_MCP_LOG_LEVEL", "INFO").upper()
         if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"}:
@@ -76,4 +80,8 @@ class Settings:
             ),
             sql_wait_seconds=_integer("DATABRICKS_MCP_SQL_WAIT_SECONDS", 30, minimum=5, maximum=50),
             sql_warehouse_allowlist=_string_tuple("DATABRICKS_MCP_SQL_WAREHOUSES"),
+            write_tools_allow=_string_tuple("DATABRICKS_MCP_WRITE_TOOLS_ALLOW"),
+            approval_ttl_seconds=_integer(
+                "DATABRICKS_MCP_APPROVAL_TTL_SECONDS", 300, minimum=30, maximum=3600
+            ),
         )

@@ -23,6 +23,14 @@ def test_defaults_are_local_and_read_only(monkeypatch: pytest.MonkeyPatch) -> No
     assert settings.access_mode == "read-only"
 
 
+def test_controlled_write_mode_and_allowlist(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABRICKS_MCP_ACCESS_MODE", "controlled-write")
+    monkeypatch.setenv("DATABRICKS_MCP_WRITE_TOOLS_ALLOW", "run_job, cancel_job_run")
+    settings = Settings.from_env()
+    assert settings.access_mode == "controlled-write"
+    assert settings.write_tools_allow == ("run_job", "cancel_job_run")
+
+
 @pytest.mark.parametrize(
     ("name", "value", "message"),
     [
