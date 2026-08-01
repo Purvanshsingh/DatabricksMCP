@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="DatabricksMCP wordmark concept">
+  <defs>
+    <linearGradient id="edge" x1="25" y1="20" x2="320" y2="310" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#56D6FF"/>
+      <stop offset="0.52" stop-color="#7A7CFF"/>
+      <stop offset="1" stop-color="#FF6464"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(28,20) scale(.63)">
+    <path d="M256 42 420 137 420 326 256 420 92 326 92 137Z"
+          fill="none" stroke="url(#edge)" stroke-width="15" stroke-linejoin="round"/>
+    <circle cx="256" cy="42" r="18" fill="#0B1220" stroke="#56D6FF" stroke-width="8"/>
+    <circle cx="420" cy="137" r="18" fill="#0B1220" stroke="#7A7CFF" stroke-width="8"/>
+    <circle cx="420" cy="326" r="18" fill="#0B1220" stroke="#FF6464" stroke-width="8"/>
+    <circle cx="256" cy="420" r="18" fill="#0B1220" stroke="#FF6464" stroke-width="8"/>
+    <circle cx="92" cy="326" r="18" fill="#0B1220" stroke="#7A7CFF" stroke-width="8"/>
+    <circle cx="92" cy="137" r="18" fill="#0B1220" stroke="#56D6FF" stroke-width="8"/>
+    <path d="M256 106 356 145 356 245c0 75-43 125-100 160-57-35-100-85-100-160V145Z" fill="#0B1220"/>
+    <path d="m256 159 73 37-73 37-73-37Z" fill="#F7FAFC"/>
+    <path d="m183 222 73 37 73-37v25l-73 37-73-37Z" fill="#C9D6E6"/>
+    <path d="m183 273 73 37 73-37v25l-73 37-73-37Z" fill="#AFC1D6"/>
+    <circle cx="256" cy="363" r="12" fill="#56D6FF"/>
+    <circle cx="212" cy="344" r="8" fill="#7A7CFF"/>
+    <circle cx="300" cy="344" r="8" fill="#FF6464"/>
+    <path d="M219 347 246 359M293 347 266 359" stroke="#F7FAFC" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <text x="370" y="158" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif"
+        font-size="78" font-weight="760" fill="#0B1220">Databricks<tspan fill="#6C72FF">MCP</tspan></text>
+  <text x="374" y="220" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif"
+        font-size="26" font-weight="600" letter-spacing="5" fill="#5A6677">OPEN PLATFORM CONTROL PLANE</text>
+  <text x="374" y="270" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif"
+        font-size="22" fill="#667386">Governed access to data, AI, workflows &amp; compute over MCP</text>
+</svg>
