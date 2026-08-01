@@ -68,6 +68,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 addopts = "--strict-config --strict-markers --cov=databricks_mcp --cov-report=term-missing"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.coverage.run]
 branch = true
