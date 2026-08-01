@@ -215,6 +215,30 @@ class WorkspaceAPI:
         return Model(content="cHJpbnQoJ2hpJyk=", file_type=str(getattr(format, "value", format)))
 
 
+class ExperimentsAPI:
+    def list_experiments(self) -> Iterator[Model]:
+        yield Model(experiment_id="e1", name="/Users/x/exp")
+
+    def get_experiment(self, experiment_id: str) -> Model:
+        return Model(experiment={"experiment_id": experiment_id, "name": "/Users/x/exp"})
+
+    def search_runs(self, *, experiment_ids: list[str] | None = None) -> Iterator[Model]:
+        yield Model(info={"run_id": "r1", "experiment_id": (experiment_ids or ["?"])[0]})
+
+
+class ModelRegistryAPI:
+    def list_models(self) -> Iterator[Model]:
+        yield Model(name="fraud", user_id="u")
+
+    def get_model(self, name: str) -> Model:
+        return Model(registered_model={"name": name})
+
+    def get_model_version(self, name: str, version: str) -> Model:
+        return Model(
+            model_version={"name": name, "version": version, "current_stage": "Production"}
+        )
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -235,3 +259,5 @@ class FakeWorkspaceClient:
         self.grants = GrantsAPI()
         self.permissions = PermissionsAPI()
         self.workspace = WorkspaceAPI()
+        self.experiments = ExperimentsAPI()
+        self.model_registry = ModelRegistryAPI()

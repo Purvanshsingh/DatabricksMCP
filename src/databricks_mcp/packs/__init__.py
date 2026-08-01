@@ -10,6 +10,7 @@ from databricks_mcp.packs import (
     core,
     governance,
     jobs,
+    mlflow,
     pipelines,
     sql,
     workspace,
@@ -36,6 +37,7 @@ DEFAULT_PACKS: tuple[Pack, ...] = (
     compute,
     governance,
     workspace,
+    mlflow,
 )
 
 
