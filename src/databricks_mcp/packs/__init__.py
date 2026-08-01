@@ -4,7 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from databricks_mcp.packs import catalog, compute, core, governance, jobs, pipelines, sql
+from databricks_mcp.packs import (
+    catalog,
+    compute,
+    core,
+    governance,
+    jobs,
+    pipelines,
+    sql,
+    workspace,
+)
 
 if TYPE_CHECKING:
     from databricks_mcp.registry import Registrar
@@ -26,6 +35,7 @@ DEFAULT_PACKS: tuple[Pack, ...] = (
     pipelines,
     compute,
     governance,
+    workspace,
 )
 
 

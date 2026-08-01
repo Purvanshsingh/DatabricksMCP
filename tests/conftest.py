@@ -203,6 +203,18 @@ class PermissionsAPI:
         )
 
 
+class WorkspaceAPI:
+    def list(self, path: str) -> Iterator[Model]:
+        yield Model(path=f"{path}/etl", object_type="NOTEBOOK", language="PYTHON")
+        yield Model(path=f"{path}/sub", object_type="DIRECTORY")
+
+    def get_status(self, path: str) -> Model:
+        return Model(path=path, object_type="DIRECTORY")
+
+    def export(self, path: str, *, format: object = None) -> Model:
+        return Model(content="cHJpbnQoJ2hpJyk=", file_type=str(getattr(format, "value", format)))
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -222,3 +234,4 @@ class FakeWorkspaceClient:
         self.query_history = QueryHistoryAPI()
         self.grants = GrantsAPI()
         self.permissions = PermissionsAPI()
+        self.workspace = WorkspaceAPI()
