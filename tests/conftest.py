@@ -173,6 +173,15 @@ class ClusterPoliciesAPI:
         return Model(policy_id=policy_id, name="default")
 
 
+class QueryHistoryAPI:
+    def list(self, *, max_results: int | None = None) -> Model:
+        return Model(
+            res=[{"query_id": "q1", "status": "FINISHED"}],
+            next_page_token=None,
+            _max=max_results,
+        )
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -189,3 +198,4 @@ class FakeWorkspaceClient:
         self.pipelines = PipelinesAPI()
         self.clusters = ClustersAPI()
         self.cluster_policies = ClusterPoliciesAPI()
+        self.query_history = QueryHistoryAPI()
