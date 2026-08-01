@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
+from databricks_mcp.approvals import ApprovalManager
+from databricks_mcp.audit import AuditLog
 from databricks_mcp.config import Settings
+from databricks_mcp.mutations import MutationController
 from databricks_mcp.packs import register_all
 from databricks_mcp.policy import PolicyEngine
 from databricks_mcp.registry import Registrar
@@ -19,13 +22,21 @@ def create_server(
 ) -> FastMCP:
     """Create an isolated server instance for a process or test."""
     databricks = service
-    policy_engine = policy or PolicyEngine()
+    policy_engine = policy or PolicyEngine(
+        access_mode=settings.access_mode,
+        write_allow=settings.write_tools_allow,
+    )
+    approvals = ApprovalManager(ttl_seconds=settings.approval_ttl_seconds)
+    audit = AuditLog()
+    controller = MutationController(policy_engine, approvals, audit)
 
     mcp = FastMCP(
         "DatabricksMCP",
         instructions=(
-            "A safety-first Databricks server. Phase 1 tools are read-only and "
-            "results are bounded. Never ask for credentials as tool arguments."
+            "A safety-first Databricks server. Read tools are always available and "
+            "bounded. State-changing tools are disabled unless explicitly enabled, "
+            "and destructive actions require an approval token. Never ask for "
+            "credentials as tool arguments."
         ),
         host=settings.host,
         port=settings.port,
@@ -39,6 +50,6 @@ def create_server(
             databricks = DatabricksService.from_environment()
         return databricks
 
-    registrar = Registrar(mcp, settings, policy_engine, service_provider)
+    registrar = Registrar(mcp, settings, policy_engine, service_provider, controller)
     register_all(registrar)
     return mcp
