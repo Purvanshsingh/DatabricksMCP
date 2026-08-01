@@ -112,6 +112,15 @@ class QueryHistoryAPI(Protocol):
     def list(self, *, max_results: int | None = ...) -> object: ...
 
 
+class GrantsAPI(Protocol):
+    def get(self, securable_type: str, full_name: str) -> object: ...
+    def get_effective(self, securable_type: str, full_name: str) -> object: ...
+
+
+class PermissionsAPI(Protocol):
+    def get(self, request_object_type: str, request_object_id: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -151,6 +160,12 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def query_history(self) -> QueryHistoryAPI: ...
+
+    @property
+    def grants(self) -> GrantsAPI: ...
+
+    @property
+    def permissions(self) -> PermissionsAPI: ...
 
 
 class DatabricksService:
@@ -319,6 +334,17 @@ class DatabricksService:
 
     def get_cluster_policy(self, policy_id: str) -> JsonObject:
         return self._object(self._client.cluster_policies.get(policy_id))
+
+    # -- Governance -------------------------------------------------------
+
+    def get_grants(self, securable_type: str, full_name: str) -> JsonObject:
+        return self._object(self._client.grants.get(securable_type, full_name))
+
+    def get_effective_grants(self, securable_type: str, full_name: str) -> JsonObject:
+        return self._object(self._client.grants.get_effective(securable_type, full_name))
+
+    def get_permissions(self, object_type: str, object_id: str) -> JsonObject:
+        return self._object(self._client.permissions.get(object_type, object_id))
 
     # -- Serialization helpers -------------------------------------------
 

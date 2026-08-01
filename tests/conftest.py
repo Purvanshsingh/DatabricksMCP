@@ -182,6 +182,27 @@ class QueryHistoryAPI:
         )
 
 
+class GrantsAPI:
+    def get(self, securable_type: str, full_name: str) -> Model:
+        return Model(
+            privilege_assignments=[{"principal": "u@x.com", "privileges": ["SELECT"]}],
+            securable_type=securable_type,
+            full_name=full_name,
+        )
+
+    def get_effective(self, securable_type: str, full_name: str) -> Model:
+        return Model(
+            privilege_assignments=[{"principal": "u@x.com", "privileges": ["SELECT", "USE_SCHEMA"]}]
+        )
+
+
+class PermissionsAPI:
+    def get(self, request_object_type: str, request_object_id: str) -> Model:
+        return Model(
+            object_type=request_object_type, object_id=request_object_id, access_control_list=[]
+        )
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -199,3 +220,5 @@ class FakeWorkspaceClient:
         self.clusters = ClustersAPI()
         self.cluster_policies = ClusterPoliciesAPI()
         self.query_history = QueryHistoryAPI()
+        self.grants = GrantsAPI()
+        self.permissions = PermissionsAPI()
