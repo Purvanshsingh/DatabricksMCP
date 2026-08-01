@@ -140,6 +140,26 @@ class ModelRegistryAPI(Protocol):
     def get_model_version(self, name: str, version: str) -> object: ...
 
 
+class ServingEndpointsAPI(Protocol):
+    def list(self) -> Iterable[object]: ...
+    def get(self, name: str) -> object: ...
+
+
+class VectorSearchEndpointsAPI(Protocol):
+    def list_endpoints(self) -> Iterable[object]: ...
+    def get_endpoint(self, endpoint_name: str) -> object: ...
+
+
+class VectorSearchIndexesAPI(Protocol):
+    def list_indexes(self, endpoint_name: str) -> Iterable[object]: ...
+    def get_index(self, index_name: str) -> object: ...
+
+
+class GenieAPI(Protocol):
+    def list_spaces(self) -> object: ...
+    def get_space(self, space_id: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -194,6 +214,18 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def model_registry(self) -> ModelRegistryAPI: ...
+
+    @property
+    def serving_endpoints(self) -> ServingEndpointsAPI: ...
+
+    @property
+    def vector_search_endpoints(self) -> VectorSearchEndpointsAPI: ...
+
+    @property
+    def vector_search_indexes(self) -> VectorSearchIndexesAPI: ...
+
+    @property
+    def genie(self) -> GenieAPI: ...
 
 
 class DatabricksService:
@@ -406,6 +438,34 @@ class DatabricksService:
 
     def get_model_version(self, name: str, version: str) -> JsonObject:
         return self._object(self._client.model_registry.get_model_version(name, version))
+
+    # -- Model serving and AI --------------------------------------------
+
+    def list_serving_endpoints(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.serving_endpoints.list(), limit=limit)
+
+    def get_serving_endpoint(self, name: str) -> JsonObject:
+        return self._object(self._client.serving_endpoints.get(name))
+
+    def list_vector_search_endpoints(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.vector_search_endpoints.list_endpoints(), limit=limit)
+
+    def get_vector_search_endpoint(self, endpoint_name: str) -> JsonObject:
+        return self._object(self._client.vector_search_endpoints.get_endpoint(endpoint_name))
+
+    def list_vector_search_indexes(self, *, endpoint_name: str, limit: int) -> list[JsonObject]:
+        return self._bounded(
+            self._client.vector_search_indexes.list_indexes(endpoint_name), limit=limit
+        )
+
+    def get_vector_search_index(self, index_name: str) -> JsonObject:
+        return self._object(self._client.vector_search_indexes.get_index(index_name))
+
+    def list_genie_spaces(self) -> JsonObject:
+        return self._object(self._client.genie.list_spaces())
+
+    def get_genie_space(self, space_id: str) -> JsonObject:
+        return self._object(self._client.genie.get_space(space_id))
 
     # -- Serialization helpers -------------------------------------------
 

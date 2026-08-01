@@ -239,6 +239,38 @@ class ModelRegistryAPI:
         )
 
 
+class ServingEndpointsAPI:
+    def list(self) -> Iterator[Model]:
+        yield Model(name="llm", state={"ready": "READY"})
+
+    def get(self, name: str) -> Model:
+        return Model(name=name, state={"ready": "READY"})
+
+
+class VectorSearchEndpointsAPI:
+    def list_endpoints(self) -> Iterator[Model]:
+        yield Model(name="vs1", endpoint_status={"state": "ONLINE"})
+
+    def get_endpoint(self, endpoint_name: str) -> Model:
+        return Model(name=endpoint_name, endpoint_status={"state": "ONLINE"})
+
+
+class VectorSearchIndexesAPI:
+    def list_indexes(self, endpoint_name: str) -> Iterator[Model]:
+        yield Model(name=f"{endpoint_name}.idx", endpoint_name=endpoint_name)
+
+    def get_index(self, index_name: str) -> Model:
+        return Model(name=index_name, index_type="DELTA_SYNC")
+
+
+class GenieAPI:
+    def list_spaces(self) -> Model:
+        return Model(spaces=[{"space_id": "s1", "title": "Sales"}])
+
+    def get_space(self, space_id: str) -> Model:
+        return Model(space_id=space_id, title="Sales")
+
+
 class FakeWorkspaceClient:
     """A structural stand-in for ``databricks.sdk.WorkspaceClient``."""
 
@@ -261,3 +293,7 @@ class FakeWorkspaceClient:
         self.workspace = WorkspaceAPI()
         self.experiments = ExperimentsAPI()
         self.model_registry = ModelRegistryAPI()
+        self.serving_endpoints = ServingEndpointsAPI()
+        self.vector_search_endpoints = VectorSearchEndpointsAPI()
+        self.vector_search_indexes = VectorSearchIndexesAPI()
+        self.genie = GenieAPI()
