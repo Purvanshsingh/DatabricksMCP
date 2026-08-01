@@ -16,16 +16,21 @@ until the project has a stable maintainer cadence.
 - [x] Unity Catalog metadata exploration (schemas, tables, views, columns, functions, volumes)
 - [x] Mock-SDK contract tests for every read tool
 - [x] Read-only SQL with sqlglot AST validation, bounded results, and cancellation
-- [ ] Read-only jobs, pipeline, and cluster inspection
+- [x] Read-only jobs, pipeline, and cluster inspection
+- [x] Read-only governance (grants and object permissions)
+- [x] Read-only workspace browse/export, MLflow, Model Serving, Vector Search, Genie
+- [x] Read-only cost and audit reads over system tables
 - [ ] Consistent cursor pagination for large listings
 - [ ] Opt-in live-workspace integration tests
 
 ## Phase 2 — Controlled operations
 
-- Jobs, pipelines, compute, and warehouse lifecycle operations
-- Mutation classification, dry runs, approval tokens, and idempotency
-- Workspace and Unity Catalog Volume file operations
-- Async task support for long-running Databricks operations
+- [x] Mutation safety contract: risk classes, dry runs, approval tokens, audit log
+- [x] `controlled-write` access mode with per-tool allowlist (writes off by default)
+- [x] First gated mutation pack: jobs run / cancel / delete
+- [ ] Pipelines, compute, and warehouse lifecycle operations
+- [ ] Workspace and Unity Catalog Volume file operations
+- [ ] Idempotency-key store and async task support for long-running operations
 
 ## Phase 3 — Enterprise remote server
 
