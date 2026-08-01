@@ -17,6 +17,7 @@ from databricks.sdk.service.sql import (
     ExecuteStatementRequestOnWaitTimeout,
     Format,
 )
+from databricks.sdk.service.workspace import ExportFormat
 
 from databricks_mcp.serialization import JsonValue, to_json_value
 
@@ -121,6 +122,12 @@ class PermissionsAPI(Protocol):
     def get(self, request_object_type: str, request_object_id: str) -> object: ...
 
 
+class WorkspaceAPI(Protocol):
+    def list(self, path: str) -> Iterable[object]: ...
+    def get_status(self, path: str) -> object: ...
+    def export(self, path: str, *, format: ExportFormat | None = ...) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -166,6 +173,9 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def permissions(self) -> PermissionsAPI: ...
+
+    @property
+    def workspace(self) -> WorkspaceAPI: ...
 
 
 class DatabricksService:
@@ -345,6 +355,17 @@ class DatabricksService:
 
     def get_permissions(self, object_type: str, object_id: str) -> JsonObject:
         return self._object(self._client.permissions.get(object_type, object_id))
+
+    # -- Workspace files --------------------------------------------------
+
+    def list_workspace_objects(self, *, path: str, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.workspace.list(path), limit=limit)
+
+    def get_workspace_status(self, path: str) -> JsonObject:
+        return self._object(self._client.workspace.get_status(path))
+
+    def export_workspace_object(self, *, path: str, export_format: str) -> JsonObject:
+        return self._object(self._client.workspace.export(path, format=ExportFormat(export_format)))
 
     # -- Serialization helpers -------------------------------------------
 
