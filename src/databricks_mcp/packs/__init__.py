@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from databricks_mcp.packs import catalog, core, jobs, pipelines, sql
+from databricks_mcp.packs import catalog, compute, core, jobs, pipelines, sql
 
 if TYPE_CHECKING:
     from databricks_mcp.registry import Registrar
@@ -18,7 +18,7 @@ class Pack(Protocol):
     def register(self, registrar: Registrar) -> None: ...
 
 
-DEFAULT_PACKS: tuple[Pack, ...] = (core, catalog, sql, jobs, pipelines)
+DEFAULT_PACKS: tuple[Pack, ...] = (core, catalog, sql, jobs, pipelines, compute)
 
 
 def register_all(registrar: Registrar) -> None:
