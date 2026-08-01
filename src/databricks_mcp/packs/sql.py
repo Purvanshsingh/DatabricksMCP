@@ -64,6 +64,17 @@ def register(registrar: Registrar) -> None:
 
     @registrar.tool(
         ToolSpec(
+            "list_query_history",
+            NAME,
+            RiskClass.READ,
+            "List recent SQL query history entries, bounded to the requested count.",
+        )
+    )
+    def list_query_history(limit: int = default_limit) -> dict[str, Any]:
+        return registrar.service.list_query_history(limit=limit_of(limit))
+
+    @registrar.tool(
+        ToolSpec(
             "execute_read_only_sql",
             NAME,
             RiskClass.READ,

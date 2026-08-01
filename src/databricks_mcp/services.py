@@ -108,6 +108,10 @@ class ClusterPoliciesAPI(Protocol):
     def get(self, policy_id: str) -> object: ...
 
 
+class QueryHistoryAPI(Protocol):
+    def list(self, *, max_results: int | None = ...) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -144,6 +148,9 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def cluster_policies(self) -> ClusterPoliciesAPI: ...
+
+    @property
+    def query_history(self) -> QueryHistoryAPI: ...
 
 
 class DatabricksService:
@@ -220,6 +227,9 @@ class DatabricksService:
 
     def get_warehouse(self, warehouse_id: str) -> JsonObject:
         return self._object(self._client.warehouses.get(warehouse_id))
+
+    def list_query_history(self, *, limit: int) -> JsonObject:
+        return self._object(self._client.query_history.list(max_results=limit))
 
     def execute_read_only_sql(
         self,
