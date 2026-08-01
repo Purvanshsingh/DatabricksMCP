@@ -128,6 +128,18 @@ class WorkspaceAPI(Protocol):
     def export(self, path: str, *, format: ExportFormat | None = ...) -> object: ...
 
 
+class ExperimentsAPI(Protocol):
+    def list_experiments(self) -> Iterable[object]: ...
+    def get_experiment(self, experiment_id: str) -> object: ...
+    def search_runs(self, *, experiment_ids: list[str] | None = ...) -> Iterable[object]: ...
+
+
+class ModelRegistryAPI(Protocol):
+    def list_models(self) -> Iterable[object]: ...
+    def get_model(self, name: str) -> object: ...
+    def get_model_version(self, name: str, version: str) -> object: ...
+
+
 class WorkspaceClientLike(Protocol):
     @property
     def current_user(self) -> CurrentUserAPI: ...
@@ -176,6 +188,12 @@ class WorkspaceClientLike(Protocol):
 
     @property
     def workspace(self) -> WorkspaceAPI: ...
+
+    @property
+    def experiments(self) -> ExperimentsAPI: ...
+
+    @property
+    def model_registry(self) -> ModelRegistryAPI: ...
 
 
 class DatabricksService:
@@ -366,6 +384,28 @@ class DatabricksService:
 
     def export_workspace_object(self, *, path: str, export_format: str) -> JsonObject:
         return self._object(self._client.workspace.export(path, format=ExportFormat(export_format)))
+
+    # -- MLflow -----------------------------------------------------------
+
+    def list_experiments(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.experiments.list_experiments(), limit=limit)
+
+    def get_experiment(self, experiment_id: str) -> JsonObject:
+        return self._object(self._client.experiments.get_experiment(experiment_id))
+
+    def search_experiment_runs(self, *, experiment_id: str, limit: int) -> list[JsonObject]:
+        return self._bounded(
+            self._client.experiments.search_runs(experiment_ids=[experiment_id]), limit=limit
+        )
+
+    def list_registered_models(self, *, limit: int) -> list[JsonObject]:
+        return self._bounded(self._client.model_registry.list_models(), limit=limit)
+
+    def get_registered_model(self, name: str) -> JsonObject:
+        return self._object(self._client.model_registry.get_model(name))
+
+    def get_model_version(self, name: str, version: str) -> JsonObject:
+        return self._object(self._client.model_registry.get_model_version(name, version))
 
     # -- Serialization helpers -------------------------------------------
 
