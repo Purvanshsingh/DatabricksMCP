@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27"]
+requires = ["hatchling>=1.31.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -21,9 +21,9 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "databricks-sdk>=0.57.0,<1",
-  "mcp>=1.9.0,<2",
-  "sqlglot>=25,<28",
+  "databricks-sdk>=0.122.0,<1",
+  "mcp>=2.0.0,<3",
+  "sqlglot>=30.14.0,<31",
 ]
 
 [project.urls]
@@ -36,11 +36,11 @@ databricks-mcp = "databricks_mcp.__main__:main"
 
 [dependency-groups]
 dev = [
-  "mypy>=1.16,<2",
-  "pre-commit>=4.2,<5",
-  "pytest>=8.4,<9",
-  "pytest-cov>=6.2,<7",
-  "ruff>=0.12,<1",
+  "mypy>=2.3.0,<3",
+  "pre-commit>=4.6.1,<5",
+  "pytest>=9.1.1,<10",
+  "pytest-cov>=7.1.0,<8",
+  "ruff>=0.16.0,<1",
 ]
 
 [tool.hatch.build.targets.wheel]
