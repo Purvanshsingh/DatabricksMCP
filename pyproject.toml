@@ -69,6 +69,9 @@ ignore_missing_imports = true
 addopts = "--strict-config --strict-markers --cov=databricks_mcp --cov-report=term-missing"
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+  "live: integration tests that require a real Databricks workspace (set DATABRICKS_MCP_LIVE=1)",
+]
 
 [tool.coverage.run]
 branch = true
